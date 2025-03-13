@@ -1,0 +1,14 @@
+# Dependências
+/node_modules
+/.next
+/out
+
+# Ambiente
+.env*.local
+
+# Vercel
+.vercel
+
+# Misc
+.DS_Store
+*.log
