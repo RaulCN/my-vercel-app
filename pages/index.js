@@ -1,6 +1,41 @@
 import Head from 'next/head';
+import { useState } from 'react';
 
 export default function Home() {
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [message, setMessage] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!phoneNumber) {
+      setMessage('Por favor, insira um número de WhatsApp válido.');
+      return;
+    }
+
+    setMessage('Enviando demonstração...');
+
+    try {
+      const response = await fetch('/api/send-demo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ phoneNumber }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage('Demonstração enviada com sucesso! Verifique seu WhatsApp.');
+      } else {
+        setMessage('Erro ao enviar a demonstração. Tente novamente.');
+      }
+    } catch (error) {
+      setMessage('Erro ao conectar com o servidor.');
+    }
+  };
+
   return (
     <div style={styles.container}>
       <Head>
@@ -20,11 +55,21 @@ export default function Home() {
           <li>Receber orientações personalizadas de um Assistente Virtual Inteligente.</li>
           <li>Acompanhar seu progresso com relatórios semanais.</li>
         </ul>
-        <div style={styles.ctaContainer}>
-          <a href="#about" style={styles.ctaButton}>
-            Comece Agora
-          </a>
-        </div>
+
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <input
+            type="text"
+            placeholder="Insira seu número de WhatsApp"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            style={styles.input}
+          />
+          <button type="submit" style={styles.ctaButton}>
+            Receber Demonstração
+          </button>
+        </form>
+
+        {message && <p style={styles.message}>{message}</p>}
       </div>
     </div>
   );
@@ -75,8 +120,17 @@ const styles = {
     marginBottom: '30px',
     paddingLeft: '20px',
   },
-  ctaContainer: {
-    marginTop: '20px',
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px',
+  },
+  input: {
+    padding: '10px',
+    fontSize: '1rem',
+    borderRadius: '8px',
+    border: '1px solid #ccc',
+    outline: 'none',
   },
   ctaButton: {
     padding: '12px 24px',
@@ -84,15 +138,13 @@ const styles = {
     color: '#fff',
     backgroundColor: '#0070f3',
     borderRadius: '8px',
-    textDecoration: 'none',
+    border: 'none',
+    cursor: 'pointer',
     transition: 'background-color 0.3s ease',
   },
-  '@keyframes fadeIn': {
-    from: { opacity: 0 },
-    to: { opacity: 1 },
-  },
-  '@keyframes slideIn': {
-    from: { transform: 'translateY(-20px)', opacity: 0 },
-    to: { transform: 'translateY(0)', opacity: 1 },
+  message: {
+    fontSize: '1rem',
+    color: '#333',
+    marginTop: '20px',
   },
 };
