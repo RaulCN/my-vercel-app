@@ -4,19 +4,25 @@ export default function Home() {
   return (
     <div style={styles.container}>
       <Head>
-        <title>App Deployado via GitHub - Sailor</title>
-        <meta name="description" content="Transforme seus sonhos em realidade com o Sailor!" />
+        <title>Sailor - Transforme seus Sonhos em Realidade</title>
+        <meta name="description" content="Sailor é a plataforma que vai te ajudar a definir metas, gerenciar gastos e alcançar seus objetivos financeiros com um Assistente Virtual Inteligente." />
       </Head>
 
       <div style={styles.content}>
-        <h1 style={styles.title}>App Deployado via GitHub! 🚀</h1>
-        <p style={styles.subtitle}>Funcionando perfeitamente na Vercel 🌤</p>
+        <h1 style={styles.title}>Bem-vindo ao Sailor! 🌟</h1>
+        <p style={styles.subtitle}>Sua plataforma para definir metas e alcançar seus sonhos.</p>
         <p style={styles.description}>
-          Este é um exemplo de como você pode personalizar sua página inicial para exibir uma mensagem amigável e informativa.
+          Com o Sailor, você pode:
         </p>
+        <ul style={styles.list}>
+          <li>Definir metas financeiras e pessoais.</li>
+          <li>Gerenciar seus gastos e comissões.</li>
+          <li>Receber orientações personalizadas de um Assistente Virtual Inteligente.</li>
+          <li>Acompanhar seu progresso com relatórios semanais.</li>
+        </ul>
         <div style={styles.ctaContainer}>
           <a href="#about" style={styles.ctaButton}>
-            Saiba Mais
+            Comece Agora
           </a>
         </div>
       </div>
@@ -38,7 +44,7 @@ const styles = {
   },
   content: {
     maxWidth: '600px',
-    padding: '20px',
+    padding: '40px',
     backgroundColor: '#ffffff',
     borderRadius: '12px',
     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
@@ -59,8 +65,15 @@ const styles = {
   description: {
     fontSize: '1rem',
     color: '#666',
-    marginBottom: '30px',
+    marginBottom: '20px',
     animation: 'fadeIn 1.2s ease-in',
+  },
+  list: {
+    textAlign: 'left',
+    fontSize: '1rem',
+    color: '#444',
+    marginBottom: '30px',
+    paddingLeft: '20px',
   },
   ctaContainer: {
     marginTop: '20px',
