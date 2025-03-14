@@ -1,7 +1,7 @@
 import twilio from 'twilio';
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID; // Account SID
-const authToken = process.env.TWILIO_AUTH_TOKEN; // Auth Token
+const authToken = process.env.TWILIO_AUTH_TOKEN;  // Auth Token
 const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER; // Número do Twilio
 
 const client = twilio(accountSid, authToken);
@@ -27,6 +27,6 @@ export default async function handler(req, res) {
     res.status(200).json({ message: 'Mensagem enviada com sucesso!' });
   } catch (error) {
     console.error('Erro ao enviar mensagem:', error);
-    res.status(500).json({ message: 'Erro ao enviar mensagem' });
+    res.status(500).json({ message: 'Erro ao conectar com o servidor' });
   }
 }
