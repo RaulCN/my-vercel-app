@@ -4,15 +4,30 @@ import { useState } from 'react';
 export default function Home() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const validatePhoneNumber = (number) => {
+    // Remove caracteres não numéricos
+    const cleaned = number.replace(/\D/g, '');
+    
+    // Verifica se é um número brasileiro válido (com ou sem 55)
+    return (cleaned.length === 11 || (cleaned.startsWith('55') && cleaned.length === 13));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!phoneNumber) {
-      setMessage('Por favor, insira um número de WhatsApp válido.');
+      setMessage('Por favor, insira um número de WhatsApp.');
       return;
     }
 
+    if (!validatePhoneNumber(phoneNumber)) {
+      setMessage('Por favor, insira um número de WhatsApp válido no formato (DDD) XXXXX-XXXX');
+      return;
+    }
+
+    setIsLoading(true);
     setMessage('Enviando demonstração...');
 
     try {
@@ -28,11 +43,14 @@ export default function Home() {
 
       if (response.ok) {
         setMessage('Demonstração enviada com sucesso! Verifique seu WhatsApp.');
+        setPhoneNumber(''); // Limpa o campo após o envio bem-sucedido
       } else {
-        setMessage('Erro ao enviar a demonstração. Tente novamente.');
+        setMessage(`Erro: ${data.message || 'Falha no envio da demonstração'}`);
       }
     } catch (error) {
-      setMessage('Erro ao conectar com o servidor.');
+      setMessage('Erro de conexão com o servidor. Verifique sua internet e tente novamente.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -59,13 +77,18 @@ export default function Home() {
         <form onSubmit={handleSubmit} style={styles.form}>
           <input
             type="text"
-            placeholder="Insira seu número de WhatsApp"
+            placeholder="Insira seu número de WhatsApp com DDD"
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
             style={styles.input}
+            disabled={isLoading}
           />
-          <button type="submit" style={styles.ctaButton}>
-            Receber Demonstração
+          <button 
+            type="submit" 
+            style={isLoading ? {...styles.ctaButton, ...styles.disabledButton} : styles.ctaButton} 
+            disabled={isLoading}
+          >
+            {isLoading ? 'Enviando...' : 'Receber Demonstração'}
           </button>
         </form>
 
@@ -80,7 +103,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    height: '100vh',
+    minHeight: '100vh',
     backgroundColor: '#f0f4f8',
     backgroundImage: 'linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%)',
     fontFamily: 'Arial, sans-serif',
@@ -93,25 +116,21 @@ const styles = {
     backgroundColor: '#ffffff',
     borderRadius: '12px',
     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    animation: 'fadeIn 1s ease-in-out',
   },
   title: {
     fontSize: '2.5rem',
     color: '#0070f3',
     marginBottom: '10px',
-    animation: 'slideIn 0.8s ease-out',
   },
   subtitle: {
     fontSize: '1.5rem',
     color: '#333',
     marginBottom: '20px',
-    animation: 'slideIn 1s ease-out',
   },
   description: {
     fontSize: '1rem',
     color: '#666',
     marginBottom: '20px',
-    animation: 'fadeIn 1.2s ease-in',
   },
   list: {
     textAlign: 'left',
@@ -141,6 +160,10 @@ const styles = {
     border: 'none',
     cursor: 'pointer',
     transition: 'background-color 0.3s ease',
+  },
+  disabledButton: {
+    backgroundColor: '#999',
+    cursor: 'not-allowed',
   },
   message: {
     fontSize: '1rem',
