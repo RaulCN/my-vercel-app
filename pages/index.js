@@ -5,17 +5,24 @@ export default function Home() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [detailedError, setDetailedError] = useState(null);
 
   const validatePhoneNumber = (number) => {
     // Remove caracteres não numéricos
     const cleaned = number.replace(/\D/g, '');
     
     // Verifica se é um número brasileiro válido (com ou sem 55)
-    return (cleaned.length === 11 || (cleaned.startsWith('55') && cleaned.length === 13));
+    const isValid = (cleaned.length === 11 || (cleaned.startsWith('55') && cleaned.length === 13));
+    
+    console.log(`Validação de número: ${number} -> ${cleaned} (válido: ${isValid})`);
+    return isValid;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Resetar estados de erro detalhado
+    setDetailedError(null);
 
     if (!phoneNumber) {
       setMessage('Por favor, insira um número de WhatsApp.');
@@ -30,6 +37,8 @@ export default function Home() {
     setIsLoading(true);
     setMessage('Enviando demonstração...');
 
+    console.log(`Iniciando envio para ${phoneNumber}`);
+
     try {
       const response = await fetch('/api/send-demo', {
         method: 'POST',
@@ -39,16 +48,46 @@ export default function Home() {
         body: JSON.stringify({ phoneNumber }),
       });
 
-      const data = await response.json();
+      console.log(`Resposta recebida: status ${response.status}`);
+      
+      // Capturar texto completo da resposta para logging
+      const responseText = await response.text();
+      console.log('Texto completo da resposta:', responseText);
+      
+      // Converter para JSON se possível
+      let data;
+      try {
+        data = JSON.parse(responseText);
+        console.log('Dados da resposta:', data);
+      } catch (jsonError) {
+        console.error('Erro ao parsear resposta JSON:', jsonError);
+        throw new Error(`Resposta inválida do servidor: ${responseText}`);
+      }
 
       if (response.ok) {
         setMessage('Demonstração enviada com sucesso! Verifique seu WhatsApp.');
         setPhoneNumber(''); // Limpa o campo após o envio bem-sucedido
       } else {
+        console.error('Erro retornado pelo servidor:', data);
         setMessage(`Erro: ${data.message || 'Falha no envio da demonstração'}`);
+        
+        // Armazenar detalhes do erro para exibição condicional
+        if (data.error || data.code || data.twilioError) {
+          setDetailedError({
+            error: data.error,
+            code: data.code,
+            twilioError: data.twilioError,
+            details: data.details
+          });
+        }
       }
     } catch (error) {
+      console.error('Erro de conexão:', error);
       setMessage('Erro de conexão com o servidor. Verifique sua internet e tente novamente.');
+      setDetailedError({
+        error: error.message,
+        type: 'connection'
+      });
     } finally {
       setIsLoading(false);
     }
@@ -93,6 +132,14 @@ export default function Home() {
         </form>
 
         {message && <p style={styles.message}>{message}</p>}
+        
+        {/* Exibição de detalhes do erro para ajudar na depuração */}
+        {detailedError && (
+          <div style={styles.errorDetails}>
+            <h3>Detalhes do erro (para depuração):</h3>
+            <pre>{JSON.stringify(detailedError, null, 2)}</pre>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -169,5 +216,14 @@ const styles = {
     fontSize: '1rem',
     color: '#333',
     marginTop: '20px',
+  },
+  errorDetails: {
+    marginTop: '20px',
+    padding: '15px',
+    backgroundColor: '#fff8e1',
+    borderRadius: '8px',
+    border: '1px solid #ffe082',
+    textAlign: 'left',
+    overflow: 'auto',
   },
 };
