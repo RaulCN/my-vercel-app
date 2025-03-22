@@ -1,0 +1,84 @@
+digraph G {
+    rankdir=TB;
+
+    subgraph cluster_frontend {
+        label="Frontend";
+        style=filled;
+        color=lightblue;
+        
+        A [label="Landing Page", shape=box, style=filled, fillcolor="#a3c4bc"];
+        B [label="Formulário de Metas", shape=box, style=filled, fillcolor="#d9d9d9"];
+        C [label="Envio de Demonstração", shape=box, style=filled, fillcolor="#d9d9d9"];
+        D [label="Etapa 2: Gestão de Contatos", shape=box, style=filled, fillcolor="#d9d9d9"];
+        E [label="Etapa 3: Relatórios", shape=box, style=filled, fillcolor="#d9d9d9"];
+
+        A -> B [label="Usuário insere número"];
+        B -> C [label="Usuário define metas"];
+        A -> D [label="Links de navegação"];
+        A -> E [label="Links de navegação"];
+    }
+
+    subgraph cluster_backend {
+        label="Backend (APIs Next.js)";
+        style=filled;
+        color=lightgray;
+
+        F [label="API: /api/send-demo", shape=box, style=filled, fillcolor="#a3c4bc"];
+        G [label="Twilio WhatsApp API", shape=box, style=filled, fillcolor="#a3c4bc"];
+        H [label="API: /api/set-goals", shape=box, style=filled, fillcolor="#a3c4bc"];
+        I [label="Armazenamento de Metas", shape=box, style=filled, fillcolor="#a3c4bc"];
+        J [label="API: Gestão de Contatos", shape=box, style=filled, fillcolor="#d9d9d9"];
+        K [label="Armazenamento de Contatos", shape=box, style=filled, fillcolor="#d9d9d9"];
+        L [label="API: Relatórios", shape=box, style=filled, fillcolor="#d9d9d9"];
+        M [label="Geração de Gráficos", shape=box, style=filled, fillcolor="#d9d9d9"];
+
+        F -> G;
+        H -> I;
+        J -> K;
+        L -> M;
+    }
+
+    subgraph cluster_fluxo {
+        label="Fluxo de Usuário";
+        style=filled;
+        color=lightyellow;
+
+        N [label="Etapa 1: Definição de Metas", shape=box, style=filled, fillcolor="#d9d9d9"];
+        O [label="Etapa 2: Gestão de Contatos", shape=box, style=filled, fillcolor="#d9d9d9"];
+        P [label="Etapa 3: Relatórios de Desempenho", shape=box, style=filled, fillcolor="#d9d9d9"];
+
+        N -> O;
+        O -> P;
+    }
+
+    subgraph cluster_storage {
+        label="Armazenamento";
+        style=filled;
+        color=lightgreen;
+
+        Q [label="Banco de Dados Temporário", shape=ellipse, style=filled, fillcolor="#a3c4bc"];
+
+        I -> Q;
+        K -> Q;
+        M -> Q;
+    }
+
+    subgraph cluster_integracao {
+        label="Integração Externa";
+        style=filled;
+        color=lightpink;
+
+        R [label="Notificações WhatsApp", shape=box, style=filled, fillcolor="#d9d9d9"];
+        S [label="Lembretes Diários", shape=box, style=filled, fillcolor="#d9d9d9"];
+        T [label="Confirmações", shape=box, style=filled, fillcolor="#d9d9d9"];
+
+        G -> R;
+        R -> S;
+        R -> T;
+    }
+
+    C -> F;
+    B -> H;
+    D -> J;
+    E -> L;
+}
