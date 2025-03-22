@@ -27,6 +27,17 @@ Na última etapa, o Sailor gera **relatórios semanais** com gráficos que mostr
 - **Gráficos Comparativos**: Veja quantas ligações e reuniões você realizou, quantos clientes potenciais foram indicados e como está o alcance das suas metas.
 - **Ajustes Contínuos**: Use esses dados para **refinar suas estratégias** e continuar evoluindo.
 
+## 🔍 Fluxo de Funcionamento  
+
+Abaixo está um diagrama mostrando como o Sailor estrutura essas etapas:
+
+```mermaid
+graph TD;
+    A[Usuário define meta financeira] --> B[Planejamento financeiro é criado];
+    B --> C[Acompanhamento do progresso];
+    C -->|Ajustes são sugeridos| B;
+    C --> D[Meta alcançada! 🎉];
+
 ## Por que Escolher o Sailor?
 
 - **Planejamento Financeiro**: Defina suas metas de forma clara e objetiva.
