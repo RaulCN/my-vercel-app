@@ -3,9 +3,13 @@ import { useState } from 'react';
 
 export default function Home() {
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [expenses, setExpenses] = useState('');
+  const [commissions, setCommissions] = useState('');
+  const [targetIncome, setTargetIncome] = useState('');
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [detailedError, setDetailedError] = useState(null);
+  const [showGoalsForm, setShowGoalsForm] = useState(false);
 
   const validatePhoneNumber = (number) => {
     // Remove caracteres não numéricos
@@ -18,12 +22,40 @@ export default function Home() {
     return isValid;
   };
 
-  const handleSubmit = async (e) => {
+  const validateForm = () => {
+    if (!phoneNumber) {
+      setMessage('Por favor, insira um número de WhatsApp.');
+      return false;
+    }
+
+    if (!validatePhoneNumber(phoneNumber)) {
+      setMessage('Por favor, insira um número de WhatsApp válido no formato (DDD) XXXXX-XXXX');
+      return false;
+    }
+
+    if (showGoalsForm) {
+      if (!expenses) {
+        setMessage('Por favor, informe seus gastos mensais.');
+        return false;
+      }
+      
+      if (!commissions) {
+        setMessage('Por favor, informe sua porcentagem de comissões.');
+        return false;
+      }
+      
+      if (!targetIncome) {
+        setMessage('Por favor, informe o rendimento desejado.');
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  const handleContinue = (e) => {
     e.preventDefault();
     
-    // Resetar estados de erro detalhado
-    setDetailedError(null);
-
     if (!phoneNumber) {
       setMessage('Por favor, insira um número de WhatsApp.');
       return;
@@ -34,10 +66,24 @@ export default function Home() {
       return;
     }
 
+    setShowGoalsForm(true);
+    setMessage('');
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Resetar estados de erro detalhado
+    setDetailedError(null);
+
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
     setMessage('Enviando demonstração...');
 
-    console.log(`Iniciando envio para ${phoneNumber}`);
+    console.log(`Iniciando envio para ${phoneNumber} com metas: ${expenses}, ${commissions}, ${targetIncome}`);
 
     try {
       const response = await fetch('/api/send-demo', {
@@ -45,7 +91,12 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ phoneNumber }),
+        body: JSON.stringify({ 
+          phoneNumber, 
+          expenses: parseFloat(expenses), 
+          commissions: parseFloat(commissions), 
+          targetIncome: parseFloat(targetIncome) 
+        }),
       });
 
       console.log(`Resposta recebida: status ${response.status}`);
@@ -66,7 +117,11 @@ export default function Home() {
 
       if (response.ok) {
         setMessage('Demonstração enviada com sucesso! Verifique seu WhatsApp.');
-        setPhoneNumber(''); // Limpa o campo após o envio bem-sucedido
+        setPhoneNumber(''); 
+        setExpenses('');
+        setCommissions('');
+        setTargetIncome('');
+        setShowGoalsForm(false);
       } else {
         console.error('Erro retornado pelo servidor:', data);
         setMessage(`Erro: ${data.message || 'Falha no envio da demonstração'}`);
@@ -113,23 +168,92 @@ export default function Home() {
           <li>Acompanhar seu progresso com relatórios semanais.</li>
         </ul>
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <input
-            type="text"
-            placeholder="Insira seu número de WhatsApp com DDD"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-            style={styles.input}
-            disabled={isLoading}
-          />
-          <button 
-            type="submit" 
-            style={isLoading ? {...styles.ctaButton, ...styles.disabledButton} : styles.ctaButton} 
-            disabled={isLoading}
-          >
-            {isLoading ? 'Enviando...' : 'Receber Demonstração'}
-          </button>
-        </form>
+        {!showGoalsForm ? (
+          <form onSubmit={handleContinue} style={styles.form}>
+            <input
+              type="text"
+              placeholder="Insira seu número de WhatsApp com DDD"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              style={styles.input}
+              disabled={isLoading}
+            />
+            <button 
+              type="submit" 
+              style={isLoading ? {...styles.ctaButton, ...styles.disabledButton} : styles.ctaButton} 
+              disabled={isLoading}
+            >
+              Continuar
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleSubmit} style={styles.form}>
+            <div style={styles.formSection}>
+              <h3 style={styles.formTitle}>Defina suas Metas 🎯</h3>
+              
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Gastos Mensais (R$)</label>
+                <input
+                  type="number"
+                  placeholder="Ex: 3000"
+                  value={expenses}
+                  onChange={(e) => setExpenses(e.target.value)}
+                  style={styles.input}
+                  disabled={isLoading}
+                  min="0"
+                  step="100"
+                />
+              </div>
+              
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Comissões (%)</label>
+                <input
+                  type="number"
+                  placeholder="Ex: 15"
+                  value={commissions}
+                  onChange={(e) => setCommissions(e.target.value)}
+                  style={styles.input}
+                  disabled={isLoading}
+                  min="0"
+                  max="100"
+                  step="0.5"
+                />
+              </div>
+              
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Rendimento Desejado (R$)</label>
+                <input
+                  type="number"
+                  placeholder="Ex: 10000"
+                  value={targetIncome}
+                  onChange={(e) => setTargetIncome(e.target.value)}
+                  style={styles.input}
+                  disabled={isLoading}
+                  min="0"
+                  step="500"
+                />
+              </div>
+            </div>
+            
+            <div style={styles.buttonGroup}>
+              <button 
+                type="button" 
+                onClick={() => setShowGoalsForm(false)}
+                style={styles.backButton} 
+                disabled={isLoading}
+              >
+                Voltar
+              </button>
+              <button 
+                type="submit" 
+                style={isLoading ? {...styles.ctaButton, ...styles.disabledButton} : styles.ctaButton} 
+                disabled={isLoading}
+              >
+                {isLoading ? 'Enviando...' : 'Receber Demonstração'}
+              </button>
+            </div>
+          </form>
+        )}
 
         {message && <p style={styles.message}>{message}</p>}
         
@@ -191,18 +315,57 @@ const styles = {
     flexDirection: 'column',
     gap: '10px',
   },
+  formSection: {
+    backgroundColor: '#f8f9fa',
+    padding: '20px',
+    borderRadius: '8px',
+    marginBottom: '20px',
+  },
+  formTitle: {
+    fontSize: '1.3rem',
+    color: '#0070f3',
+    marginBottom: '15px',
+  },
+  inputGroup: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    marginBottom: '15px',
+  },
+  label: {
+    fontSize: '0.9rem',
+    color: '#555',
+    marginBottom: '5px',
+    alignSelf: 'flex-start',
+  },
   input: {
     padding: '10px',
     fontSize: '1rem',
     borderRadius: '8px',
     border: '1px solid #ccc',
     outline: 'none',
+    width: '100%',
+  },
+  buttonGroup: {
+    display: 'flex',
+    gap: '10px',
   },
   ctaButton: {
     padding: '12px 24px',
     fontSize: '1rem',
     color: '#fff',
     backgroundColor: '#0070f3',
+    borderRadius: '8px',
+    border: 'none',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s ease',
+    flex: '1',
+  },
+  backButton: {
+    padding: '12px 24px',
+    fontSize: '1rem',
+    color: '#333',
+    backgroundColor: '#e0e0e0',
     borderRadius: '8px',
     border: 'none',
     cursor: 'pointer',
