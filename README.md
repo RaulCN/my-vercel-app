@@ -36,7 +36,8 @@ graph TD;
     A[Usuário define meta financeira] --> B[Planejamento financeiro é criado];
     B --> C[Acompanhamento do progresso];
     C -->|Ajustes são sugeridos| B;
-    C --> D[Meta alcançada!];
+    C --> D[Meta alcançada];
+
 
 
 ## Por que Escolher o Sailor?
