@@ -31,14 +31,7 @@ Na última etapa, o Sailor gera **relatórios semanais** com gráficos que mostr
 
 Abaixo está um diagrama mostrando como o Sailor estrutura essas etapas:
 
-```mermaid
-graph TD;
-    A[Usuário define meta financeira] --> B[Planejamento financeiro é criado];
-    B --> C[Acompanhamento do progresso];
-    C -->|Ajustes são sugeridos| B;
-    C --> D[Meta alcançada];
-
-
+![Fluxo do Sailor](./diagrama_fluxo.svg)
 
 ## Por que Escolher o Sailor?
 
